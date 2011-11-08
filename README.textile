@@ -15,15 +15,15 @@ h1. Usage
 pre.    (ns your-namespace
       (require [rn.clorine :as cl]
                [clojure.contrib.sql :as sql]))
-    
+
 pre.    (defn myfunc [skunum storenum]
       (cl/with-connection :inventory
         (sql/with-query-results rs ["SELECT * FROM store_inventory where sku = ? and store_num = ?" skunum storenum]
           (doseq [rec *rs*]
             (prn (format "Item: %s" rec))))))
-    
+
 pre.    (defn main []
-      (cl/register-conneciton! :inventory 
+      (cl/register-connection! :inventory
        {:driver-class-name   "org.postgresql.Driver"
         :user                "db-username"
         :password            "db-password"
@@ -44,18 +44,18 @@ Once a connection has been registered and its pool has been established, any out
 
 <pre>
    (defn get-remaining-inventory [item-sku store-number]
-      ;; In the example code, this is a nested with-conneciton, which will
-      ;; return the same :inventory database conneciton instance the outer
-      ;; with-conneciton did in the record-restock-orders function
-     (with-conneciton :inventory
+      ;; In the example code, this is a nested with-connection, which will
+      ;; return the same :inventory database connection instance the outer
+      ;; with-connection did in the record-restock-orders function
+     (with-connection :inventory
        (sql/with-query-results rs ["SELECT count FROM store_inventory where sku = ? and store_num = ?" skunum storenum]
           (:count (first rs)))))
-                     
+
    (defn get-items-sold [item-sku store-number date]
-      ;; In the example code, this is a nested with-conneciton, which will
-      ;; return the same :inventory database conneciton instance the outer
-      ;; with-conneciton did in the record-restock-orders function
-      (with-conneciton :inventory
+      ;; In the example code, this is a nested with-connection, which will
+      ;; return the same :inventory database connection instance the outer
+      ;; with-connection did in the record-restock-orders function
+      (with-connection :inventory
        (sql/with-query-results rs ["SELECT count(*) FROM store_items_sold where sku = ? and store_num = ? and date = ?" skunum storenum date]
           (:count (first rs)))))
 
@@ -64,7 +64,7 @@ Once a connection has been registered and its pool has been established, any out
      ;; the inventory database is establishd (pulled from the pool) and defines
      ;; the scope of the connection being open (it is closed when this scope is
      ;; left, placing the connection back into the pool).
-     (with-conneciton :inventory
+     (with-connection :inventory
        (let [items-sold      (get-items-sold item-sku store-number date)
              items-remaining (get-remaining-inventory item-sku store-number)]
          (sql/do-prepared "INSERT INTO restock_items (sku,sotore_num,order_date) values (?,?,current_date)"
@@ -74,7 +74,7 @@ Once a connection has been registered and its pool has been established, any out
 
     (defn main []
       ;; a test connection will be established when the :inventory connection is registered
-      (cl/register-conneciton! :inventory 
+      (cl/register-connection! :inventory
         {:driver-class-name   "org.postgresql.Driver"
          :user                "db-username"
          :password            "db-password"
@@ -87,7 +87,7 @@ Once a connection has been registered and its pool has been established, any out
 
 h1. Installation
 
-h2. Maven 
+h2. Maven
 
 <pre>
   <dependencies>
