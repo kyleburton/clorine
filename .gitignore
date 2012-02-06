@@ -5,3 +5,6 @@ classes
 README.textile.html
 *~
 *sqlite
+.lein-deps-sum
+native/
+
