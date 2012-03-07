@@ -70,7 +70,8 @@
                           (.setUsername        (:user params))
                           (.setPassword        (:password params))
                           (.setUrl             (:url params))
-                          (.setMaxActive       (:max-active params 8)))]
+                          (.setMaxActive       (:max-active params 8))
+                          (.setDefaultReadOnly (:read-only params false)))]
     (dosync
      (alter *connection-registry* assoc name connection-pool)
      (test-connection name))))
