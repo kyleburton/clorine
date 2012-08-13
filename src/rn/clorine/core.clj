@@ -93,7 +93,8 @@
                           (.setUrl             (:url params))
                           (.setMaxActive       (:max-active params 8))
                           (.setDefaultReadOnly (:read-only params false))
-                          (.setMaxWait         (:max-wait params 0)))]
+                          (.setMaxWait         (:max-wait params 0))
+                          (.setAccessToUnderlyingConnectionAllowed (:access-underlying-connection params false))) ]
     (dosync
      (alter *connection-registry* assoc name connection-pool)
      (test-connection name))))
@@ -112,7 +113,7 @@
         (try
          (reset! result (body-fn))
          (catch Exception e
-          (reset! ex e)))
+           (reset! ex e)))
         (cond (not @ex)
               @result
 

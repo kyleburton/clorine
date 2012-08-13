@@ -15,13 +15,13 @@ h1. Usage
 pre.    (ns your-namespace
       (require [rn.clorine :as cl]
                [clojure.contrib.sql :as sql]))
-    
+
 pre.    (defn myfunc [skunum storenum]
       (cl/with-connection :inventory
         (sql/with-query-results rs ["SELECT * FROM store_inventory where sku = ? and store_num = ?" skunum storenum]
           (doseq [rec *rs*]
             (prn (format "Item: %s" rec))))))
-    
+
 pre.    (defn main []
       (cl/register-connection! :inventory
        {:driver-class-name   "org.postgresql.Driver"
@@ -50,7 +50,7 @@ Once a connection has been registered and its pool has been established, any out
      (with-connection :inventory
        (sql/with-query-results rs ["SELECT count FROM store_inventory where sku = ? and store_num = ?" skunum storenum]
           (:count (first rs)))))
-                     
+
    (defn get-items-sold [item-sku store-number date]
       ;; In the example code, this is a nested with-connection, which will
       ;; return the same :inventory database connection instance the outer
@@ -87,7 +87,7 @@ Once a connection has been registered and its pool has been established, any out
 
 h1. Installation
 
-h2. Maven 
+h2. Maven
 
 <pre>
   <dependencies>
