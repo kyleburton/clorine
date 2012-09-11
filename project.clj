@@ -10,5 +10,6 @@
                      [org.xerial/sqlite-jdbc  "3.6.20"]]
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [org.clojure/clojure-contrib "1.2.0"]
+                 [org.clojars.kyleburton/clj-etl-utils "1.0.53"]
                  [commons-dbcp/commons-dbcp "1.4"]])
 
