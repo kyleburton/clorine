@@ -59,11 +59,11 @@
   (let [helper-fn
         #(let [[conn we-opened-it] (get-connection conn-name)]
            (binding [clojure.contrib.sql.internal/*db*
-                     (merge
-                      clojure.contrib.sql.internal/*db*
-                      {:connection conn
-                       :level      (get clojure.contrib.sql.internal/*db* :level 0)
-                       :rollback   (get clojure.contrib.sql.internal/*db* :rollback (atom false))})]
+                     (if we-opened-it
+                       {:connection conn
+                        :level       0
+                        :rollback   (atom false)}
+                       clojure.contrib.sql.internal/*db*)]
              (try
               (func)
               (finally
@@ -73,7 +73,10 @@
                    (.close conn)))))))]
     (if (nil? *curr-thread-connections*)
       (binding [*curr-thread-connections* (atom {})]
-        (helper-fn))
+        (let [res (helper-fn)]
+          (when-not (empty? @*curr-thread-connections*)
+            (throw (java.lang.RuntimeException. (format "Error: at top level, *curr-thread-connections* is non-emtpy: %s " @*curr-thread-connections*))))
+          res))
       (helper-fn))))
 
 
