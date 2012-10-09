@@ -22,7 +22,7 @@
 (defn make-factory [factory-fns-map]
   (if-not (contains? factory-fns-map :make-fn)
     (raise "Error: you must supply at least a :make-fn, but you can supply any of: [:activate-fn :destroy-fn :passivate-fn :validate-fn]"))
-  (let [no-op (fn [this #^Object obj] nil)
+  (let [no-op (fn [this ^Object obj] nil)
         factory-fns-map (merge {:activate-fn  no-op
                                 :destroy-fn   no-op
                                 :passivate-fn no-op
@@ -31,15 +31,15 @@
         {make-fn :make-fn activate-fn :activate-fn destroy-fn :destroy-fn passivate-fn :passivate-fn validate-fn :validate-fn} factory-fns-map]
     (reify
      org.apache.commons.pool.PoolableObjectFactory
-     (#^void activateObject [this #^Object obj]
+     (^void activateObject [this ^Object obj]
              (activate-fn this obj))
-     (#^void destroyObject [this #^Object obj]
+     (^void destroyObject [this ^Object obj]
              (destroy-fn this obj))
-     (#^Object makeObject [this]
+     (^Object makeObject [this]
                (make-fn this))
-     (#^void passivateObject [this #^Object obj]
+     (^void passivateObject [this ^Object obj]
              (passivate-fn this obj))
-     (#^boolean validateObject [this #^Object obj]
+     (^boolean validateObject [this ^Object obj]
                 (passivate-fn obj)))))
 
 (defn get-registered-pool [pool-name]
