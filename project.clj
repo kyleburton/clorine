@@ -1,4 +1,4 @@
-(defproject com.relaynetwork/clorine "1.3.12-SNAPSHOT"
+(defproject com.relaynetwork/clorine "1.3.12"
   :description "Clorine"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
@@ -6,6 +6,7 @@
             :comments "same as Clojure"}
   :jvm-opts ["-Xmx256M"]
   :aot      [rn.clorine.retries-exhausted-exception]
+  :lein-release {:deploy-vai :clojars}
   :dev-dependencies [[swank-clojure "1.4.2"]
                      [org.xerial/sqlite-jdbc  "3.7.2"]]
   :dependencies [[org.clojure/clojure "1.3.0"]
