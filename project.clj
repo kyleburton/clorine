@@ -6,6 +6,8 @@
             :comments "same as Clojure"}
   :jvm-opts ["-Xmx512M"]
   :aot      [rn.clorine.retries-exhausted-exception]
+  :local-repo-classpath true
+  :lein-release     {:deploy-via :clojars :scm :git}
   :dev-dependencies [[swank-clojure "1.4.0-SNAPSHOT"]
                      [org.xerial/sqlite-jdbc  "3.6.20"]]
   :dependencies [[org.clojure/clojure "1.2.0"]
