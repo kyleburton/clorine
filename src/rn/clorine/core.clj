@@ -97,7 +97,14 @@
                           (.setMaxActive       (:max-active params 8))
                           (.setDefaultReadOnly (:read-only params false))
                           (.setMaxWait         (:max-wait params 0))
-                          (.setAccessToUnderlyingConnectionAllowed (:access-underlying-connection params false))) ]
+                          (.setAccessToUnderlyingConnectionAllowed (:access-underlying-connection params false))
+                          (.setTestOnBorrow    (:test-on-borrow params false))
+                          (.setTestOnReturn    (:test-on-return params false))
+                          (.setTestWhileIdle   (:test-while-idle params false))
+                          (.setValidationQuery (:validation-query params))
+                          (.setTimeBetweenEvictionRunsMillis (:time-between-eviction-runs-millis params -1))
+                          (.setMinEvictableIdleTimeMillis    (:min-evictable-idle-time-millis params (* 1000 60 30)))
+                          (.setNumTestsPerEvictionRun        (:num-tests-per-eviction-run params 3))) ]
     (dosync
      (alter *connection-registry* assoc name connection-pool)
      (test-connection name))))
