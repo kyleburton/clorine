@@ -1,0 +1,5 @@
+Connection Validation and Eviction
+    See: http://commons.apache.org/dbcp/configuration.html
+  Support sensible defaults for the configuration paramters listed 
+  Allow all of those configuration parameters to be set when registering
+    a connection pool.
