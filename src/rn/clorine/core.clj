@@ -2,12 +2,11 @@
     ^{:doc "Clorine: Purified Database Connection Pool Management"
       :authors "Kyle Burton <kyle.burton@gmail.com>, Paul Santa Clara, Josh Crean"}
   rn.clorine.core
-  (:require
-   [clojure.java.jdbc                      :as sql]
-   [clojure.string                         :as string])
-  (:import
-   [org.apache.commons.dbcp  BasicDataSource]
-   [rn.clorine RetriesExhaustedException]))
+  (:require [clojure.contrib.pprint                 :as pp]
+            [clojure.contrib.sql                    :as sql]
+            [clojure.contrib.str-utils              :as str-utils])
+  (:import [org.apache.commons.dbcp  BasicDataSource]
+           [rn.clorine RetriesExhaustedException]))
 
 (defonce
   ^{:doc  "Package level connection info registry."
@@ -16,12 +15,11 @@
 
 (def
  ^{:doc "Thread local mapping of registered database configuration name to opened connection."
-   :added "1.0.0"
-   :dynamic true}
+   :added "1.0.0"}
  *curr-thread-connections* nil)
 
 (defn retries-exhausted-get-errors [errors]
-  (string/join
+  (str-utils/str-join
    "\n"
    (map #(.getMessage %1) errors)))
 
@@ -32,7 +30,7 @@
                                               (vec (keys @*connection-registry*))))))
   (if-let [conn (get @*curr-thread-connections* conn-name)]
     [conn false]
-    (let [new-connection (.getConnection ^BasicDataSource (get @*connection-registry* conn-name))]
+    (let [new-connection (.getConnection #^BasicDataSource (get @*connection-registry* conn-name))]
       (swap! *curr-thread-connections* assoc conn-name new-connection)
       [new-connection true])))
 
@@ -60,12 +58,12 @@
 (defn with-connection* [conn-name func]
   (let [helper-fn
         #(let [[conn we-opened-it] (get-connection conn-name)]
-           (binding [clojure.java.jdbc/*db*
+           (binding [clojure.contrib.sql.internal/*db*
                      (if we-opened-it
                        {:connection conn
                         :level       0
                         :rollback   (atom false)}
-                       (var-get #'clojure.java.jdbc/*db*))]
+                       clojure.contrib.sql.internal/*db*)]
              (try
               (func)
               (finally

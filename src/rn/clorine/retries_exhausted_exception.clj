@@ -1,16 +1,14 @@
 (ns rn.clorine.retries-exhausted-exception
-  (:require
-   [clojure.string :as string])
+  (:require [clojure.contrib.str-utils :as str-utils])
   (:gen-class
-   :name         rn.clorine.RetriesExhaustedException
-   :extends      Exception
-   :prefix       retries-exhausted-ex-
-   :constructors {[String java.util.List]
-                  [String]
-                  [String Throwable java.util.List]
-                  [String Throwable]}
-   :init         init
-   :state        errors))
+   :name rn.clorine.RetriesExhaustedException
+   :extends Exception
+   :prefix "retries-exhausted-ex-"
+   :constructors {[String java.util.List] [String]
+                  [String Throwable java.util.List] [String Throwable]}
+   :init init
+   :state errors))
+
 
 (defn retries-exhausted-ex-init
   ([#^String msg #^java.util.List exceptions]
@@ -18,34 +16,23 @@
   ([#^String msg #^Throwable ex #^java.util.List exceptions ]
      [[msg ex] exceptions]))
 
-(defn retries-exhausted-ex-toString [this]
-  (string/join "; "
-               (cons (.getMessage this)
-                     (map
-                      (fn [ctr err]
-                        (str ctr ": " (.getMessage err)))
-                      (iterate inc 1)
-                      (.errors this)))))
-
 
 (comment
 
-  (def *chicken* (atom nil))
+(def *chicken* (atom nil))
 
-  (let [errors [(RuntimeException. "blah") (RuntimeException. "lunch ")]]
-    (reset! *chicken*
-            (rn.clorine.RetriesExhaustedException.
-             "Error"
-             errors)))
+ (let [errors [(RuntimeException. "blah") (RuntimeException. "lunch ")]]
+   (reset! *chicken*
+           (rn.clorine.RetriesExhaustedException.
+            (retries-exhausted-get-errors errors)
+            errors)))
 
-
-  (str @*chicken*)
-  (.printStackTrace @*chicken*)
+(.getMessage @*chicken*)
 
 
 
 
 
-  (compile 'rn.clorine.retries-exhausted-exception)
+ (compile 'rn.clorine.retries-exhausted-exception)
 
-  )
+)
