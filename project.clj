@@ -1,4 +1,4 @@
-(defproject com.relaynetwork/clorine "1.0.14-SNAPSHOT"
+(defproject com.relaynetwork/clorine "1.0.14"
   :description  "Clorine"
   :url          "http://github.com/relaynetwork/clorine"
   :lein-release {:deploy-via :clojars}
@@ -9,6 +9,8 @@
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :aot      [rn.clorine.retries-exhausted-exception]
   :local-repo-classpath true
+
+  :plugins [[lein-release/lein-release "1.0.4"]]
   :profiles             {:dev {:dependencies [[swank-clojure "1.4.3"]
                                               [org.xerial/sqlite-jdbc  "3.6.20"]
                                               ]}
