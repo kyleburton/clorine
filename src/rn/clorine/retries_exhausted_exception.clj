@@ -1,5 +1,4 @@
 (ns rn.clorine.retries-exhausted-exception
-  (:require [clojure.contrib.str-utils :as str-utils])
   (:gen-class
    :name rn.clorine.RetriesExhaustedException
    :extends Exception
