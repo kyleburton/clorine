@@ -2,17 +2,16 @@
     ^{:doc "Clorine: Purified Database Connection Pool Management"
       :authors "Kyle Burton <kyle.burton@gmail.com>, Paul Santa Clara, Josh Crean"}
   rn.clorine.core
-  (:require
-   [clojure.java.jdbc                      :as sql]
-   [clojure.string                         :as string])
-  (:import
-   [org.apache.commons.dbcp  BasicDataSource]
-   [rn.clorine RetriesExhaustedException]))
+  (:require [clojure.pprint                         :as pp]
+            [clojure.java.jdbc                      :as jdbc]
+            [clojure.string                         :as str-utils])
+  (:import [org.apache.commons.dbcp  BasicDataSource]
+           [rn.clorine RetriesExhaustedException]))
 
 (defonce
   ^{:doc  "Package level connection info registry."
     :added "1.0.0"}
-  *connection-registry* (ref {}))
+  connection-registry (ref {}))
 
 (def
  ^{:doc "Thread local mapping of registered database configuration name to opened connection."
@@ -21,31 +20,31 @@
  *curr-thread-connections* nil)
 
 (defn retries-exhausted-get-errors [errors]
-  (string/join
+  (str-utils/join
    "\n"
-   (map #(.getMessage %1) errors)))
+   (map #(.getMessage ^Throwable %1) errors)))
 
 (defn get-connection [conn-name]
-  (if-not (contains? @*connection-registry* conn-name)
+  (if-not (contains? @connection-registry conn-name)
     (throw (IllegalArgumentException. (format "Error: connection name not registered: %s the following are registered: %s"
                                               conn-name
-                                              (vec (keys @*connection-registry*))))))
+                                              (vec (keys @connection-registry))))))
   (if-let [conn (get @*curr-thread-connections* conn-name)]
     [conn false]
-    (let [new-connection (.getConnection ^BasicDataSource (get @*connection-registry* conn-name))]
+    (let [new-connection (.getConnection #^BasicDataSource (get @connection-registry conn-name))]
       (swap! *curr-thread-connections* assoc conn-name new-connection)
       [new-connection true])))
 
 (defn get-datasource [conn-name]
-  (if-not (contains? @*connection-registry* conn-name)
+  (if-not (contains? @connection-registry conn-name)
     (throw (IllegalArgumentException. (format "Error: connection name not registered: %s the following are registered: %s"
                                               conn-name
-                                              (vec (keys @*connection-registry*))))))
+                                              (vec (keys @connection-registry))))))
   (if-let [conn (get @*curr-thread-connections* conn-name)]
     [conn false]
-    [(get @*connection-registry* conn-name) true]))
+    [(get @connection-registry conn-name) true]))
 
-(def *datasource* nil)
+(def ^{:dynamic true} *datasource* nil)
 
 (defn with-datasource* [conn-name func]
   (let [helper-fn
@@ -72,7 +71,7 @@
                (if we-opened-it
                  (do
                    (swap! *curr-thread-connections* dissoc conn-name)
-                   (.close conn)))))))]
+                   (.close ^java.sql.Connection conn)))))))]
     (if (nil? *curr-thread-connections*)
       (binding [*curr-thread-connections* (atom {})]
         (let [res (helper-fn)]
@@ -108,7 +107,7 @@
                           (.setMinEvictableIdleTimeMillis    (:min-evictable-idle-time-millis params (* 1000 60 30)))
                           (.setNumTestsPerEvictionRun        (:num-tests-per-eviction-run params 3))) ]
     (dosync
-     (alter *connection-registry* assoc name connection-pool)
+     (alter connection-registry assoc name connection-pool)
      (test-connection name))))
 
 
@@ -136,7 +135,7 @@
               (throw (rn.clorine.RetriesExhaustedException.
                       (format "UnRetriable Exception encoutered. %s/%s :: %s"
                               (class @ex)
-                              (.getMessage @ex)
+                              (.getMessage ^Throwable @ex)
                               (retries-exhausted-get-errors errors))
                       @ex
                       errors)))))))

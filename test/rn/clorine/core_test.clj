@@ -1,23 +1,23 @@
 (ns rn.clorine.core-test
-  (:require [rn.clorine.core :as cl]
-            [clojure.contrib.sql :as sql])
+  (:require [rn.clorine.core     :as cl]
+            [clojure.java.jdbc   :as jdbc])
   (:use [clojure.test])
   (:import [java.sql SQLException]))
 
-(def *db-spec*
+(def db-spec
      {:driver-class-name "org.sqlite.JDBC"
       :url "jdbc:sqlite:./clorine-test.sqlite"})
 
 
 (defn db-connect-fixture [f]
-  (cl/register-connection! :clorine-test  *db-spec*)
+  (cl/register-connection! :clorine-test db-spec)
   (cl/with-connection :clorine-test
     (f)))
 
 
 (defn db-test-fixtures [f]
-  (sql/do-commands "DROP TABLE if exists chickens")
-  (sql/create-table :chickens  [:name :text "UNIQUE"])
+  (jdbc/do-commands "DROP TABLE if exists chickens")
+  (jdbc/create-table :chickens  [:name :text "UNIQUE"])
   (f))
 
 
@@ -29,11 +29,11 @@
   (let [retriable? #{SQLException}]
     (or
      (retriable? (class e))
-     (retriable? (class (.getCause e))))))
+     (retriable? (class (.getCause ^Throwable e))))))
 
 (deftest test-exhausted-retries
   (cl/with-connection :clorine-test
-    (sql/insert-values :chickens [:name] ["Dinner"]))
+    (jdbc/insert-values :chickens [:name] ["Dinner"]))
 
   (is (thrown-with-msg?
         rn.clorine.RetriesExhaustedException
@@ -41,12 +41,12 @@
         (cl/with-retry 5
           is-sql-exception?
           (cl/with-connection :clorine-test
-            (sql/insert-values :chickens [:name] ["Dinner"]))))))
+            (jdbc/insert-values :chickens [:name] ["Dinner"]))))))
 
 
 (deftest test-retry-works
   (cl/with-connection :clorine-test
-    (sql/insert-values :chickens [:name] ["Dinner"])
+    (jdbc/insert-values :chickens [:name] ["Dinner"])
 
     (is (= true
            (let [first-time? (atom true)]
@@ -56,11 +56,11 @@
                  (do
                    (reset! first-time? false)
                    (cl/with-connection :clorine-test
-                     (sql/insert-values :chickens [:name] ["Dinner"])))
+                     (jdbc/insert-values :chickens [:name] ["Dinner"])))
                  (do
                    (cl/with-connection :clorine-test
-                     (sql/delete-rows :chickens ["name=?" "Dinner"])
-                     (sql/insert-values :chickens [:name] ["Dinner"])))))
+                     (jdbc/delete-rows :chickens ["name=?" "Dinner"])
+                     (jdbc/insert-values :chickens [:name] ["Dinner"])))))
              true)))))
 
 

@@ -6,3 +6,7 @@ README.textile.html
 *~
 .lein-deps-sum
 native/
+target/
+.lein-failures
+clorine-test.sqlite
+out.txt
