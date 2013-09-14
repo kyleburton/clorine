@@ -1,4 +1,4 @@
-(defproject com.relaynetwork/clorine "1.0.15-SNAPSHOT"
+(defproject com.relaynetwork/clorine "1.0.14"
   :description  "Clorine"
   :url          "http://github.com/relaynetwork/clorine"
   :lein-release {:deploy-via :clojars}
