@@ -30,6 +30,7 @@
                                               conn-name
                                               (vec (keys @connection-registry))))))
   (if-let [conn (get @*curr-thread-connections* conn-name)]
+    ;; [conn we-opened-it]
     [conn false]
     (let [new-connection (.getConnection #^BasicDataSource (get @connection-registry conn-name))]
       (swap! *curr-thread-connections* assoc conn-name new-connection)
@@ -64,6 +65,14 @@
                        {:connection conn
                         :level       0
                         :rollback   (atom false)}
+                       ;; NB: known bug: if we have nested
+                       ;; with-connection*'s, eg: (wc :foo ... (wc
+                       ;; :bar ... (wc :foo ...)))  in that case, the
+                       ;; 2nd :foo should be the same as the first
+                       ;; but since we-opened-it is false, we'll be
+                       ;; using the current value of
+                       ;; #'clojure.java.jdbc/*db*, which will be :bar
+                       ;; and is _WRONG_.
                        (var-get #'clojure.java.jdbc/*db*))]
              (try
               (func)
