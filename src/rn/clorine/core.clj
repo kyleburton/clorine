@@ -116,8 +116,7 @@
                           (.setMinEvictableIdleTimeMillis    (:min-evictable-idle-time-millis params (* 1000 60 30)))
                           (.setNumTestsPerEvictionRun        (:num-tests-per-eviction-run params 3))) ]
     (dosync
-     (alter connection-registry assoc name connection-pool)
-     (test-connection name))))
+     (alter connection-registry assoc name connection-pool))))
 
 
 (defn with-retry* [num-retries retryable-error? body-fn]
@@ -152,4 +151,3 @@
 
 (defmacro with-retry [num-retries exception-predicate & body]
   `(with-retry* ~num-retries ~exception-predicate (fn [] ~@body) ))
-
