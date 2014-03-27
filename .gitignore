@@ -11,3 +11,4 @@ target/
 clorine-test.sqlite
 out.txt
 .lein-plugins/
+test.sqlite
