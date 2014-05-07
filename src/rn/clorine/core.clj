@@ -3,7 +3,7 @@
       :authors "Kyle Burton <kyle.burton@gmail.com>, Paul Santa Clara, Josh Crean"}
   rn.clorine.core
   (:require [clojure.pprint                         :as pp]
-            [clojure.java.jdbc                      :as jdbc]
+            [clojure.java.jdbc.deprecated           :as jdbc]
             [clojure.string                         :as str-utils])
   (:import [org.apache.commons.dbcp  BasicDataSource]
            [rn.clorine RetriesExhaustedException]))
@@ -60,7 +60,7 @@
 (defn with-connection* [conn-name func]
   (let [helper-fn
         #(let [[conn we-opened-it] (get-connection conn-name)]
-           (binding [clojure.java.jdbc/*db*
+           (binding [jdbc/*db*
                      (if we-opened-it
                        {:connection conn
                         :level       0
@@ -73,7 +73,7 @@
                        ;; using the current value of
                        ;; #'clojure.java.jdbc/*db*, which will be :bar
                        ;; and is _WRONG_.
-                       (var-get #'clojure.java.jdbc/*db*))]
+                       (var-get #'jdbc/*db*))]
              (try
               (func)
               (finally
