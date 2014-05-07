@@ -108,7 +108,7 @@ pre.  [com.relaynetwork/clorine "1.0.18"]
 
 h1. Changes
 
-* 2014-05-07T13:08:28Z compatability with clojure.java.jdbc 0.3.3
+* 2014-05-07T13:08:28Z clorine-1.0.18: compatability with [clojure.java.jdbc "0.3.3"]
 
 h1. License
 
