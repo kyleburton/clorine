@@ -1,6 +1,7 @@
 Factor out the DBCP implementation so we can support other connection pooling implementations, eg:
 
-    https://github.com/swaldman/c3p0
+    c3p0 https://github.com/swaldman/c3p0
+    BoneCP http://jolbox.com/
 
 
 BUG: Clorine allows you to nest with-connection's for the same connection name.
