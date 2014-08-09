@@ -1,0 +1,11 @@
+Wed Nov  6 10:03:11 EST 2013 Kyle Burton, Paul Santa Clara
+
+Allow setting of the following pool cofiguration options for the generic
+object pool:
+
+	:max-active
+	:lifo
+	:max-idle
+	:max-wait
+	:min-idle
+

@@ -3,7 +3,7 @@
       :authors "Kyle Burton <kyle.burton@gmail.com>, Paul Santa Clara, Josh Crean"}
   rn.clorine.core
   (:require [clojure.pprint                         :as pp]
-            [clojure.java.jdbc.deprecated           :as jdbc]
+            [clojure.java.jdbc                      :as jdbc]
             [clojure.string                         :as str-utils])
   (:import [org.apache.commons.dbcp  BasicDataSource]
            [rn.clorine RetriesExhaustedException]))
@@ -30,7 +30,6 @@
                                               conn-name
                                               (vec (keys @connection-registry))))))
   (if-let [conn (get @*curr-thread-connections* conn-name)]
-    ;; [conn we-opened-it]
     [conn false]
     (let [new-connection (.getConnection #^BasicDataSource (get @connection-registry conn-name))]
       (swap! *curr-thread-connections* assoc conn-name new-connection)
@@ -60,20 +59,12 @@
 (defn with-connection* [conn-name func]
   (let [helper-fn
         #(let [[conn we-opened-it] (get-connection conn-name)]
-           (binding [jdbc/*db*
+           (binding [clojure.java.jdbc/*db*
                      (if we-opened-it
                        {:connection conn
                         :level       0
                         :rollback   (atom false)}
-                       ;; NB: known bug: if we have nested
-                       ;; with-connection*'s, eg: (wc :foo ... (wc
-                       ;; :bar ... (wc :foo ...)))  in that case, the
-                       ;; 2nd :foo should be the same as the first
-                       ;; but since we-opened-it is false, we'll be
-                       ;; using the current value of
-                       ;; #'clojure.java.jdbc/*db*, which will be :bar
-                       ;; and is _WRONG_.
-                       (var-get #'jdbc/*db*))]
+                       (var-get #'clojure.java.jdbc/*db*))]
              (try
               (func)
               (finally
@@ -116,7 +107,8 @@
                           (.setMinEvictableIdleTimeMillis    (:min-evictable-idle-time-millis params (* 1000 60 30)))
                           (.setNumTestsPerEvictionRun        (:num-tests-per-eviction-run params 3))) ]
     (dosync
-     (alter connection-registry assoc name connection-pool))))
+     (alter connection-registry assoc name connection-pool)
+     (test-connection name))))
 
 
 (defn with-retry* [num-retries retryable-error? body-fn]
@@ -151,3 +143,4 @@
 
 (defmacro with-retry [num-retries exception-predicate & body]
   `(with-retry* ~num-retries ~exception-predicate (fn [] ~@body) ))
+

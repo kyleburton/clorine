@@ -1,0 +1,19 @@
+BUG: Clorine allows you to nest with-connection's for the same connection name.
+If you nest in the following way:
+
+  (with-connection :foo
+    ...
+    (with-connection :bar
+      ...
+      (with-connection :foo
+        ..)))
+
+The inner most with-connection should give back a :foo connection, the BUG
+causes it to give back a :bar connection.
+
+
+Connection Validation and Eviction
+    See: http://commons.apache.org/dbcp/configuration.html
+  Support sensible defaults for the configuration paramters listed 
+  Allow all of those configuration parameters to be set when registering
+    a connection pool.
